@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore DND Database</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            background-color: #f4f6f9;
+        }
+        header {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            font-size: 1.5em;
+            color: #333;
+        }
+        form {
+            border: 1px solid #ccc;
+            padding: 25px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            margin-bottom: 30px;
+        }
+        h2 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .results {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            margin-top: 30px;
+        }
+        .results h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .results .result-row {
+            background-color: #f7f7f7;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 12px;
+        }
+        .results .result-row p {
+            margin: 5px 0;
+            font-size: 1.1em;
+            color: #444;
+        }
+        .flash-message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #fff;
+            padding: 10px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .error-message {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Explore DND Database</h1>
+        <p>Input the required parameters to call a stored procedure and view the output.</p>
+    </header>
+
+    <!-- Trigger Stored Procedures Form -->
+    <form method="POST" action="/trigger">
+        <h2>Select Stored Procedure</h2>
+        <select name="procedure_name">
+            <option value="FindClass">Find Class</option>
+            <option value="FindNPC">Find NPC</option>
+            <option value="FindSkill">Find Skill</option>
+        </select>
+
+        <h2>Enter Parameter (Name)</h2>
+        <input type="text" name="name_value" placeholder="Enter name (e.g., Artificer, NPC Name, etc.)">
+
+        <button type="submit">Trigger Procedure</button>
+    </form>
+
+    <!-- Flash Messages for Success/Errors -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-message {{ messages[0][0] == 'error' and 'error-message' }}">
+                {{ messages[0][1] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Results Section -->
+    {% if output %}
+        <div class="results">
+            <h3>Stored Procedure Results</h3>
+            {% for row in output %}
+                <div class="result-row">
+                    {% for key, value in row.items() %}
+                        <p><strong>{{ key }}:</strong> {{ value }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="results">
+            <h3>No Results to Display</h3>
+            <p>Try entering a valid name and submitting the form.</p>
+        </div>
+    {% endif %}
+
+</body>
+</html>
