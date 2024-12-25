@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        .login-container h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .login-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .login-container button.unsuccessful {
+            background-color: #ff4d4d;
+            color: #ffffff;
+        }
+
+        .login-container button.unsuccessful:hover {
+            background-color: #cc0000;
+        }
+
+        .register {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .register a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        register a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="button" onclick="validateLogin()" id="loginButton">Login</button>
+        <div id="errorMessage" class="error-message">Either your username or password is wrong.</div>
+    </form>
+    <div class="register">
+        <p>Dont have account? <a href="/register">Register here</a></p>
+    </div>
+</div>
+
+<script>
+    function validateLogin() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('errorMessage');
+        const loginButton = document.getElementById('loginButton');
+
+        // Replace these with actual validation logic or server-side check
+        const validUsername = "user123";
+        const validPassword = "password123";
+
+        if (username === validUsername && password === validPassword) {
+            alert("Login successful!");
+            errorMessage.style.display = "none";
+            loginButton.classList.remove('unsuccessful');
+        } else {
+            errorMessage.style.display = "block";
+            loginButton.classList.add('unsuccessful');
+        }
+    }
+</script>
+
+</body>
+</html>

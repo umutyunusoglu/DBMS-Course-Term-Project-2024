@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Support Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .admin-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+
+        .user-list {
+            width: 30%;
+            max-width: 200px;
+            border-right: 1px solid #ddd;
+            padding-right: 10px;
+            overflow-y: auto;
+        }
+
+        .user-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .user-list li {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-list li:hover {
+            background-color: #f1f1f1;
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .chat-history {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            flex-grow: 1;
+        }
+
+        .chat-message {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .chat-message.user {
+            justify-content: flex-start;
+        }
+
+        .chat-message.admin {
+            justify-content: flex-end;
+        }
+
+        .chat-message .bubble {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .chat-message.user .bubble {
+            background-color: #007bff;
+        }
+
+        .chat-message.admin .bubble {
+            background-color: #555;
+        }
+
+        .chat-message .bubble div {
+            margin-bottom: 5px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .chat-input button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="user-list">
+        <h3>Users</h3>
+        <ul>
+            <li onclick="loadChat('John Doe')">John Doe</li>
+            <li onclick="loadChat('Jane Smith')">Jane Smith</li>
+            <li onclick="loadChat('Mike Johnson')">Mike Johnson</li>
+        </ul>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header" id="chatHeader">Select a user to view messages</div>
+        <div class="chat-history" id="chatHistory"></div>
+        <div class="chat-input" style="display: none;" id="chatInput">
+            <input type="text" id="adminResponse" placeholder="Type your response...">
+            <button type="button" onclick="sendAdminResponse()">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatData = {
+        'John Doe': [
+            { sender: 'user', text: 'Hello, I need help with my order.', time: '12/23/2024, 10:45 AM' },
+            { sender: 'admin', text: 'Sure! Can you please provide your order ID?', time: '12/23/2024, 10:46 AM' },
+            { sender: 'user', text: 'It\'s #12345.', time: '12/23/2024, 10:47 AM' }
+        ],
+        'Jane Smith': [
+            { sender: 'user', text: 'My product was defective. Can I get a replacement?', time: '12/23/2024, 11:00 AM' }
+        ],
+        'Mike Johnson': [
+            { sender: 'user', text: 'My order is late. Can you check its status?', time: '12/23/2024, 11:15 AM' }
+        ]
+    };
+
+    function loadChat(userName) {
+        const chatHeader = document.getElementById('chatHeader');
+        const chatHistory = document.getElementById('chatHistory');
+        const chatInput = document.getElementById('chatInput');
+
+        chatHeader.textContent = `Chat with ${userName}`;
+        chatHistory.innerHTML = '';
+        chatInput.style.display = 'flex';
+
+        if (chatData[userName]) {
+            chatData[userName].forEach(message => {
+                const chatMessage = document.createElement('div');
+                chatMessage.className = `chat-message ${message.sender}`;
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.innerHTML = `<div>${message.text}</div><div style="font-size: 12px; color: #ccc; text-align: right;">${message.time}</div>`;
+                chatMessage.appendChild(bubble);
+                chatHistory.appendChild(chatMessage);
+            });
+        }
+    }
+
+    function sendAdminResponse() {
+        const responseInput = document.getElementById('adminResponse');
+        const responseText = responseInput.value.trim();
+        const chatHeader = document.getElementById('chatHeader');
+        const chatHistory = document.getElementById('chatHistory');
+
+        if (responseText) {
+            const dateTime = new Date().toLocaleString();
+            const userName = chatHeader.textContent.replace('Chat with ', '');
+            const chatMessage = document.createElement('div');
+            chatMessage.className = 'chat-message admin';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.innerHTML = `<div>${responseText}</div><div style="font-size: 12px; color: #ccc; text-align: right;">${dateTime}</div>`;
+
+            chatMessage.appendChild(bubble);
+            chatHistory.appendChild(chatMessage);
+
+            if (!chatData[userName]) {
+                chatData[userName] = [];
+            }
+
+            chatData[userName].push({ sender: 'admin', text: responseText, time: dateTime });
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            responseInput.value = '';
+        } else {
+            alert('Please enter a response before sending.');
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support and Cases</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .support-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        .support-container h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        .support-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .support-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .message-display {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            font-size: 14px;
+        }
+
+        .case-list {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .case-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .case-list li {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .case-list li:hover {
+            background-color: #f1f1f1;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .chat-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .chat-history {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+        }
+
+        .chat-message {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .chat-message.user {
+            justify-content: flex-start;
+        }
+
+        .chat-message.admin {
+            justify-content: flex-end;
+        }
+
+        .chat-message .bubble {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .chat-message.user .bubble {
+            background-color: #007bff;
+        }
+
+        .chat-message.admin .bubble {
+            background-color: #555;
+        }
+
+        .chat-message .bubble div {
+            margin-bottom: 5px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .chat-input button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="support-container">
+    <h2>Support Page</h2>
+    <form id="supportForm">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="subject">Subject</label>
+            <select id="subject" name="subject" required>
+                <option value="Defected Product">Defected Product</option>
+                <option value="Late Order">Late Order</option>
+                <option value="Lost Product">Lost Product</option>
+                <option value="Suggestion">Suggestion</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" required></textarea>
+        </div>
+        <button type="button" onclick="submitSupport()">Submit</button>
+    </form>
+
+    <div id="messageDisplay" class="message-display" style="display: none;"></div>
+</div>
+
+<div class="case-list">
+    <h3>Your Cases</h3>
+    <ul>
+        <li onclick="loadChat('Case 1: Defected Product')">Case 1: Defected Product</li>
+        <li onclick="loadChat('Case 2: Late Order')">Case 2: Late Order</li>
+        <li onclick="loadChat('Case 3: Suggestion')">Case 3: Suggestion</li>
+    </ul>
+</div>
+
+<div class="chat-container">
+    <div class="chat-header" id="chatHeader">Select a case to view messages</div>
+    <div class="chat-history" id="chatHistory"></div>
+    <div class="chat-input" style="display: none;" id="chatInput">
+        <input type="text" id="userMessage" placeholder="Type your message...">
+        <button type="button" onclick="sendUserMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    const caseData = {
+        'Case 1: Defected Product': [
+            { sender: 'user', text: 'I received a defective product. Can you help?', time: '12/23/2024, 10:00 AM' },
+            { sender: 'admin', text: 'Sure! Can you please share the product details?', time: '12/23/2024, 10:05 AM' }
+        ],
+        'Case 2: Late Order': [
+            { sender: 'user', text: 'My order hasn\'t arrived yet.', time: '12/23/2024, 11:00 AM' }
+        ],
+        'Case 3: Suggestion': [
+            { sender: 'user', text: 'I have a suggestion to improve your service.', time: '12/23/2024, 12:00 PM' }
+        ]
+    };
+
+    function submitSupport() {
+        const name = document.getElementById('name').value;
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value;
+        const messageDisplay = document.getElementById('messageDisplay');
+
+        if (name && subject && message) {
+            const dateTime = new Date().toLocaleString();
+            messageDisplay.style.display = 'block';
+            messageDisplay.innerHTML = `
+                <strong>Message Submitted!</strong><br>
+                <strong>Name:</strong> ${name}<br>
+                <strong>Subject:</strong> ${subject}<br>
+                <strong>Message:</strong> ${message}<br>
+                <strong>Date & Time:</strong> ${dateTime}
+            `;
+        } else {
+            alert('Please fill in all fields before submitting.');
+        }
+    }
+
+    function loadChat(caseTitle) {
+        const chatHeader = document.getElementById('chatHeader');
+        const chatHistory = document.getElementById('chatHistory');
+        const chatInput = document.getElementById('chatInput');
+
+        chatHeader.textContent = caseTitle;
+        chatHistory.innerHTML = '';
+        chatInput.style.display = 'flex';
+
+        if (caseData[caseTitle]) {
+            caseData[caseTitle].forEach(message => {
+                const chatMessage = document.createElement('div');
+                chatMessage.className = `chat-message ${message.sender}`;
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.innerHTML = `<div>${message.text}</div><div style="font-size: 12px; color: #ccc; text-align: right;">${message.time}</div>`;
+                chatMessage.appendChild(bubble);
+                chatHistory.appendChild(chatMessage);
+            });
+        }
+    }
+
+    function sendUserMessage() {
+        const messageInput = document.getElementById('userMessage');
+        const messageText = messageInput.value.trim();
+        const chatHeader = document.getElementById('chatHeader');
+        const chatHistory = document.getElementById('chatHistory');
+
+        if (messageText) {
+            const dateTime = new Date().toLocaleString();
+            const caseTitle = chatHeader.textContent;
+            const chatMessage = document.createElement('div');
+            chatMessage.className = 'chat-message user';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.innerHTML = `<div>${messageText}</div><div style="font-size: 12px; color: #ccc; text-align: right;">${dateTime}</div>`;
+
+            chatMessage.appendChild(bubble);
+            chatHistory.appendChild(chatMessage);
+
+            if (!caseData[caseTitle]) {
+                caseData[caseTitle] = [];
+            }
+
+            caseData[caseTitle].push({ sender: 'user', text: messageText, time: dateTime });
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            messageInput.value = '';
+        } else {
+            alert('Please enter a message before sending.');
+        }
+    }
+</script>
+
+</body>
+</html>
