@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Support and Cases</title>
+    <script
+          src="https://code.jquery.com/jquery-3.4.1.min.js"
+          integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+          crossorigin="anonymous"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -198,7 +202,7 @@
 <body>
 
 <div class="support-container">
-    <h2>Support Page</h2>
+    <h2>Welcome to Support Page, {{username}} </h2>
     <form id="supportForm">
         <div class="form-group">
             <label for="name">Name</label>
@@ -224,13 +228,36 @@
 </div>
 
 <div class="case-list">
+   
+    
     <h3>Your Cases</h3>
-    <ul>
-        <li onclick="loadChat('Case 1: Defected Product')">Case 1: Defected Product</li>
-        <li onclick="loadChat('Case 2: Late Order')">Case 2: Late Order</li>
-        <li onclick="loadChat('Case 3: Suggestion')">Case 3: Suggestion</li>
-    </ul>
-</div>
+    
+    <ul id="cases_list"></ul>
+
+    <script>
+        let data = '{{ cases|tojson }}';
+        let username="{{username}}";
+        data = JSON.parse(data);
+        let list = document.getElementById("cases_list");
+
+        for (i = 0; i < data.length; ++i) {
+            
+            elem=data[i]
+            console.log(elem)
+            let caseName=username+":"+elem['subject']+":"+(i+1)
+            console.log(caseName)
+
+            let li = document.createElement('li');
+            
+            li.onclick = function() {
+                loadChat(caseName);
+            };
+
+            li.innerText = "Case "+(i+1)+" "+data[i]['subject'];
+            list.appendChild(li);
+        }
+    </script>
+
 
 <div class="chat-container">
     <div class="chat-header" id="chatHeader">Select a case to view messages</div>
@@ -242,24 +269,18 @@
 </div>
 
 <script>
-    const caseData = {
-        'Case 1: Defected Product': [
-            { sender: 'user', text: 'I received a defective product. Can you help?', time: '12/23/2024, 10:00 AM' },
-            { sender: 'admin', text: 'Sure! Can you please share the product details?', time: '12/23/2024, 10:05 AM' }
-        ],
-        'Case 2: Late Order': [
-            { sender: 'user', text: 'My order hasn\'t arrived yet.', time: '12/23/2024, 11:00 AM' }
-        ],
-        'Case 3: Suggestion': [
-            { sender: 'user', text: 'I have a suggestion to improve your service.', time: '12/23/2024, 12:00 PM' }
-        ]
-    };
+
+
 
     function submitSupport() {
+
+        let username="{{username}}";
         const name = document.getElementById('name').value;
         const subject = document.getElementById('subject').value;
-        const message = document.getElementById('message').value;
+        const message = document.getElementById('message').value;   
         const messageDisplay = document.getElementById('messageDisplay');
+        
+
 
         if (name && subject && message) {
             const dateTime = new Date().toLocaleString();
@@ -271,12 +292,34 @@
                 <strong>Message:</strong> ${message}<br>
                 <strong>Date & Time:</strong> ${dateTime}
             `;
+
+
+            $.ajax({
+                url:"/support/"+username+"/add_case",
+                type:"POST",
+                contentType: "application/json",
+                data:JSON.stringify({name:name,subject:subject,message:message}),
+                success:function(response){
+                    console.log(response)
+                    if(response == "success"){
+                        console.log("success")
+                    }
+                }
+            });
+
+
+
+
+
         } else {
             alert('Please fill in all fields before submitting.');
         }
     }
+    
 
     function loadChat(caseTitle) {
+        
+       
         const chatHeader = document.getElementById('chatHeader');
         const chatHistory = document.getElementById('chatHistory');
         const chatInput = document.getElementById('chatInput');
@@ -285,13 +328,32 @@
         chatHistory.innerHTML = '';
         chatInput.style.display = 'flex';
 
-        if (caseData[caseTitle]) {
-            caseData[caseTitle].forEach(message => {
+        let username="{{username}}";
+        let subject=caseTitle.split(":")[1];
+        let case_id=caseTitle.split(":")[2];
+
+        let cases = '{{ cases|tojson }}';
+        cases= JSON.parse(cases);
+
+        let caseData = {};
+        for (i = 0; i < cases.length; ++i) {
+            elem=cases[i]
+            if(elem['subject']==subject && (i+1)==case_id){
+                caseData=elem['chat_history']
+                break;
+            }
+
+
+        }
+
+        if (caseData) {
+            caseData.forEach(message => {
+                
                 const chatMessage = document.createElement('div');
                 chatMessage.className = `chat-message ${message.sender}`;
                 const bubble = document.createElement('div');
                 bubble.className = 'bubble';
-                bubble.innerHTML = `<div>${message.text}</div><div style="font-size: 12px; color: #ccc; text-align: right;">${message.time}</div>`;
+                bubble.innerHTML = `<div>${message["message"]}</div>`;
                 chatMessage.appendChild(bubble);
                 chatHistory.appendChild(chatMessage);
             });
@@ -303,25 +365,39 @@
         const messageText = messageInput.value.trim();
         const chatHeader = document.getElementById('chatHeader');
         const chatHistory = document.getElementById('chatHistory');
+        
 
         if (messageText) {
-            const dateTime = new Date().toLocaleString();
             const caseTitle = chatHeader.textContent;
             const chatMessage = document.createElement('div');
             chatMessage.className = 'chat-message user';
 
             const bubble = document.createElement('div');
             bubble.className = 'bubble';
-            bubble.innerHTML = `<div>${messageText}</div><div style="font-size: 12px; color: #ccc; text-align: right;">${dateTime}</div>`;
+            bubble.innerHTML = `<div>${messageText}</div></div>`;
 
             chatMessage.appendChild(bubble);
             chatHistory.appendChild(chatMessage);
 
-            if (!caseData[caseTitle]) {
-                caseData[caseTitle] = [];
-            }
 
-            caseData[caseTitle].push({ sender: 'user', text: messageText, time: dateTime });
+            let username="{{username}}";
+            let subject=caseTitle.split(":")[1];
+            let case_id=caseTitle.split(":")[2];
+        
+            $.ajax({
+                url:"/support/"+username+"/add_message",
+                type:"POST",
+                contentType: "application/json",
+                data:JSON.stringify({username:username,subject:subject,case_id:case_id-1,message:messageText}),
+                success:function(response){
+                    console.log(response)
+                    if(response == "success"){
+                        console.log("success")
+                    }
+                }
+            });
+
+
             chatHistory.scrollTop = chatHistory.scrollHeight;
             messageInput.value = '';
         } else {

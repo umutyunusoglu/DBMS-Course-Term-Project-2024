@@ -118,25 +118,56 @@
     </div>
 </div>
 
+
+
+
 <script>
+    
     function validateLogin() {
+        
+        
+
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const errorMessage = document.getElementById('errorMessage');
         const loginButton = document.getElementById('loginButton');
 
         // Replace these with actual validation logic or server-side check
-        const validUsername = "user123";
-        const validPassword = "password123";
 
-        if (username === validUsername && password === validPassword) {
-            alert("Login successful!");
-            errorMessage.style.display = "none";
-            loginButton.classList.remove('unsuccessful');
-        } else {
-            errorMessage.style.display = "block";
-            loginButton.classList.add('unsuccessful');
-        }
+        var users = {{ users|tojson }};
+
+    
+        users.forEach(element =>
+        {
+            console.log(element.name, element.password);
+            console.log(element.name==username, element.password==password);
+            
+            if(element.name===username && element.password===password){
+                console.log("Username found! and password matched");
+
+                console.log(element.type);
+
+                errorMessage.style.display = "none";
+                loginButton.classList.remove('unsuccessful');
+
+                if(element.type==="admin"){
+                    window.location.href = "/admin";
+                }
+                else{
+                    newUrl = "/support/"+element.name;
+                    window.location.href = newUrl;
+
+                }
+
+            }
+            else {
+                errorMessage.style.display = "block";
+                loginButton.classList.add('unsuccessful');
+            }
+        });
+
+
+       
     }
 </script>
 

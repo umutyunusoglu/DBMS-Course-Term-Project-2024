@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Support Page</title>
+    <script
+          src="https://code.jquery.com/jquery-3.4.1.min.js"
+          integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+          crossorigin="anonymous"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -139,11 +143,11 @@
 
 <div class="admin-container">
     <div class="user-list">
-        <h3>Users</h3>
-        <ul>
-            <li onclick="loadChat('John Doe')">John Doe</li>
-            <li onclick="loadChat('Jane Smith')">Jane Smith</li>
-            <li onclick="loadChat('Mike Johnson')">Mike Johnson</li>
+        <h3>Cases</h3>
+        
+
+        <ul id="userList">
+         
         </ul>
     </div>
 
@@ -158,7 +162,46 @@
 </div>
 
 <script>
-    const chatData = {
+
+    // Chat will be between user-case and admin
+  
+              
+    let userList = {{ users | tojson }};
+        
+        var userlist=document.getElementById('userList');
+
+        userList.forEach(user => {
+
+            cases=user['cases'];
+            
+            for (let i = 0; i < cases.length; i++) {
+                
+                c=cases[i];
+                
+                chat_name=user['name']+":"+c["subject"]+":";
+           
+                var li = document.createElement("li");
+                
+                li.appendChild(document.createTextNode(chat_name+(i)));
+                li.onclick = function() {
+                    loadChat(chat_name+(i));
+                };
+             
+                userlist.appendChild(li);
+
+         
+              
+            }
+
+
+      
+        });
+
+
+
+
+/*
+    var chatData = {
         'John Doe': [
             { sender: 'user', text: 'Hello, I need help with my order.', time: '12/23/2024, 10:45 AM' },
             { sender: 'admin', text: 'Sure! Can you please provide your order ID?', time: '12/23/2024, 10:46 AM' },
@@ -170,28 +213,60 @@
         'Mike Johnson': [
             { sender: 'user', text: 'My order is late. Can you check its status?', time: '12/23/2024, 11:15 AM' }
         ]
-    };
+    };*/
 
-    function loadChat(userName) {
+
+   
+
+    function loadChat(chatName) {
+
+
+        console.log(chatName);
+        let username=chatName.split(":")[0];
+        let subject=chatName.split(":")[1];
+        let case_id=chatName.split(":")[2];
+
+        console.log(username);
+        console.log(subject);
+        console.log(case_id);
+        
+        let chat_history=[];
+
+        userList.forEach(user => {
+            if(user['name']==username){
+                cases=user['cases'];
+                for (let i = 0; i < cases.length; i++) {
+                    c=cases[i];
+                    if(c["subject"]==subject && i==case_id){
+                 
+                        chat_history=c["chat_history"];
+                        break;
+                    }
+                }
+            }
+        });
+
+
+        
+
         const chatHeader = document.getElementById('chatHeader');
         const chatHistory = document.getElementById('chatHistory');
         const chatInput = document.getElementById('chatInput');
 
-        chatHeader.textContent = `Chat with ${userName}`;
+        chatHeader.textContent = `Chat with ${chatName}`;
         chatHistory.innerHTML = '';
         chatInput.style.display = 'flex';
 
-        if (chatData[userName]) {
-            chatData[userName].forEach(message => {
-                const chatMessage = document.createElement('div');
-                chatMessage.className = `chat-message ${message.sender}`;
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble';
-                bubble.innerHTML = `<div>${message.text}</div><div style="font-size: 12px; color: #ccc; text-align: right;">${message.time}</div>`;
-                chatMessage.appendChild(bubble);
-                chatHistory.appendChild(chatMessage);
-            });
-        }
+        chat_history.forEach(message => {
+            const chatMessage = document.createElement('div');
+            chatMessage.className = `chat-message ${message['sender']}`;
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.innerHTML = `<div>${message["message"]}</div>`;
+            chatMessage.appendChild(bubble);
+            chatHistory.appendChild(chatMessage);
+        });
+   
     }
 
     function sendAdminResponse() {
@@ -201,23 +276,45 @@
         const chatHistory = document.getElementById('chatHistory');
 
         if (responseText) {
-            const dateTime = new Date().toLocaleString();
+
             const userName = chatHeader.textContent.replace('Chat with ', '');
             const chatMessage = document.createElement('div');
             chatMessage.className = 'chat-message admin';
 
             const bubble = document.createElement('div');
             bubble.className = 'bubble';
-            bubble.innerHTML = `<div>${responseText}</div><div style="font-size: 12px; color: #ccc; text-align: right;">${dateTime}</div>`;
+            bubble.innerHTML = `<div>${responseText}</div>>`;
 
             chatMessage.appendChild(bubble);
             chatHistory.appendChild(chatMessage);
 
-            if (!chatData[userName]) {
-                chatData[userName] = [];
-            }
+            // Send the response to the user
+            
+            console.log(chatHeader.textContent);
 
-            chatData[userName].push({ sender: 'admin', text: responseText, time: dateTime });
+            $.ajax({
+                url: '/admin/response',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify({
+                    username: chatHeader.textContent.split(":")[0].split(" ")[2],
+                    subject: chatHeader.textContent.split(":")[1],
+                    case_id: chatHeader.textContent.split(":")[2],
+                    message: responseText
+                }),
+                success: function(response) {
+                    console.log("Success");
+                    console.log(response);
+                    window.location.href = "/admin";
+                },
+                error: function(error) {
+                    console.log("Error");
+                    console.log(error);
+                }
+            });
+
+            
+            
             chatHistory.scrollTop = chatHistory.scrollHeight;
             responseInput.value = '';
         } else {
